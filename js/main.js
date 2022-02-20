@@ -1,19 +1,16 @@
-function getRandomInRange(min, max) {
-  let randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+const getRandomInRange = (min, max) => {
+  let tMin = min;
+  let tMax = max;
+
   if (max < min) {
-    randomNumber = Math.floor(Math.random() * (min - max + 1)) + max;
+    tMin = max;
+    tMax = min;
   }
-  return randomNumber;
-}
+  return Math.floor(Math.random() * (tMax - tMin + 1)) + tMin;
+};
 
 getRandomInRange(1, 10);
 
-function checkInputLength(field, maxLength) {
-  const OPTIMAL_LENGTH= field.value.length <= maxLength;
-  if (OPTIMAL_LENGTH) {
-    return true;
-  }
-  return false;
-}
+const checkStringLength = (checkString, maxLength) => checkString.length <= maxLength;
 
-checkInputLength('.text__description', 140);
+checkStringLength(1390, 140);
