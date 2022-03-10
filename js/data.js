@@ -24,6 +24,6 @@ const createUserPost = (_elem, id) => {
   };
 };
 
-const usersPosts = Array.from({length: 25}, createUserPost);
+const createUsersPosts = (amount) => Array.from({length: amount}, createUserPost);
 
-export {usersPosts};
+export {createUsersPosts};

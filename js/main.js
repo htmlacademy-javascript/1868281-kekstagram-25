@@ -1,2 +1,2 @@
-import {usersPosts} from './data.js';
-console.log(usersPosts);
+import './data.js';
+import './picture.js';
