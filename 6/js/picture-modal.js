@@ -18,23 +18,25 @@ const onPopupEscKeydown = (evt) => {
   }
 };
 
+const onClick = () => {
+  closeModal();
+};
+
 function closeModal () {
   modalContainer.classList.add('hidden');
   modalCommentsCountWrapper.classList.remove('hidden');
   modalCommentsLoader.classList.remove('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onPopupEscKeydown);
+  modalCloseButton.removeEventListener('click', onClick);
 }
-
-modalCloseButton.addEventListener('click', () => {
-  closeModal();
-});
 
 const showModal = ({url, description, likes, comments}) => {
   modalContainer.classList.remove('hidden');
   modalCommentsCountWrapper.classList.add('hidden');
   modalCommentsLoader.classList.add('hidden');
   document.body.classList.add('modal-open');
+  modalCloseButton.addEventListener('click', onClick);
   document.addEventListener('keydown', onPopupEscKeydown);
   modalImg.src = url;
   modalCaption.textContent = description;
