@@ -18,7 +18,7 @@ const onPopupEscKeydown = (evt) => {
   }
 };
 
-const onClick = () => {
+const onModalCloseButtonClick = () => {
   closeModal();
 };
 
@@ -28,7 +28,7 @@ function closeModal () {
   modalCommentsLoader.classList.remove('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onPopupEscKeydown);
-  modalCloseButton.removeEventListener('click', onClick);
+  modalCloseButton.removeEventListener('click', onModalCloseButtonClick);
 }
 
 const showModal = ({url, description, likes, comments}) => {
@@ -36,7 +36,7 @@ const showModal = ({url, description, likes, comments}) => {
   modalCommentsCountWrapper.classList.add('hidden');
   modalCommentsLoader.classList.add('hidden');
   document.body.classList.add('modal-open');
-  modalCloseButton.addEventListener('click', onClick);
+  modalCloseButton.addEventListener('click', onModalCloseButtonClick);
   document.addEventListener('keydown', onPopupEscKeydown);
   modalImg.src = url;
   modalCaption.textContent = description;
