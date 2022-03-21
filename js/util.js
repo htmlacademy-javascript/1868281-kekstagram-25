@@ -11,7 +11,7 @@ const getRandomInRange = (min, max) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomInRange(0, elements.length - 1)];
 
-const maxStringLength = 3;
+const maxStringLength = 140;
 const checkStringLength = (value) => value.length <= maxStringLength;
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
