@@ -21,16 +21,14 @@ const pristine = new Pristine(uploadForm, {
 });
 
 const getArrayOfHashtags = (value) => {
-  if (value) {
-    const hashtags = value.split(/\s+/g);
-    if (hashtags[0] === ''){
-      hashtags.shift();
-    }
-    if (hashtags[hashtags.length - 1] === '') {
-      hashtags.pop();
-    }
-    return hashtags;
+  const hashtags = value.split(/\s+/g);
+  if (hashtags[0] === ''){
+    hashtags.shift();
   }
+  if (hashtags[hashtags.length - 1] === '') {
+    hashtags.pop();
+  }
+  return hashtags;
 };
 
 const validateArrayOfHashtags = (value) => {
@@ -38,12 +36,8 @@ const validateArrayOfHashtags = (value) => {
     return true;
   }
   const regularExpression = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
-  const hashtags = getArrayOfHashtags(value);
-  const results = [];
-  hashtags.forEach((element) => {
-    results.push(regularExpression.test(element));
-  });
-  return !results.includes(false);
+  const hashtags = getArrayOfHashtags(value).map((element) =>regularExpression.test(element));
+  return !hashtags.includes(false);
 };
 
 const validateDuplicateHashtag = (value) => {
@@ -51,7 +45,7 @@ const validateDuplicateHashtag = (value) => {
     return true;
   }
   const hashtags = getArrayOfHashtags(value);
-  const swapArr = [...new Set(hashtags)];
+  const swapArr = [...new Set(hashtags.map((element) => element.toLowerCase()))];
   return hashtags.length === swapArr.length;
 };
 
@@ -87,23 +81,7 @@ pristine.addValidator(
   'Комментарий не более 140 символов'
 );
 
-const onUploadInputAddPhoto = () => {
-  openUserPhotoUpload();
-};
-
-uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
-
-const onFilterScaleButtonsClick = (evt) => {
-  changeScaleOfUserPhoto(evt);
-};
-
-const onEffectsRadioButtonsChange = (evt) => {
-  changeImgEffect(evt);
-};
-
-const onUploadModalCloseButtonClick = () => {
-  closeUserPhotoUpload();
-};
+uploadUserPhoto.addEventListener('change', openUserPhotoUpload);
 
 const onPopupEscKeydown = (evt) => {
   if (isEscapeKey(evt) && !document.activeElement.matches('.text__hashtags') && !document.activeElement.matches('.text__description')) {
@@ -120,20 +98,20 @@ const onUploadModalSubmitButtonClick = (evt) => {
 function openUserPhotoUpload () {
   filterContainer.classList.remove('hidden');
   document.body.classList.add('modal-open');
-  filterCloseButton.addEventListener('click', onUploadModalCloseButtonClick);
+  filterCloseButton.addEventListener('click', closeUserPhotoUpload);
   document.addEventListener('keydown', onPopupEscKeydown);
-  scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
-  effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
+  scaleControlContainer.addEventListener('click', changeScaleOfUserPhoto);
+  effectsSelector.addEventListener('change', changeImgEffect);
   uploadForm.addEventListener('change', onUploadModalSubmitButtonClick);
 }
 
 function closeUserPhotoUpload () {
   filterContainer.classList.add('hidden');
   document.body.classList.remove('modal-open');
-  filterCloseButton.removeEventListener('click', onUploadModalCloseButtonClick);
+  filterCloseButton.removeEventListener('click', closeUserPhotoUpload);
   document.removeEventListener('keydown', onPopupEscKeydown);
-  scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
-  effectsSelector.removeEventListener('submit', onEffectsRadioButtonsChange);
+  scaleControlContainer.removeEventListener('click', changeScaleOfUserPhoto);
+  effectsSelector.removeEventListener('submit', changeImgEffect);
   uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
   hashtagsField.value = '';
   commentField.value = '';
