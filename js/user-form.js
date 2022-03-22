@@ -141,7 +141,7 @@ function closeUserPhotoUpload () {
   filterCloseButton.removeEventListener('click', onUploadModalCloseButtonClick);
   document.removeEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
-  effectsSelector.removeEventListener('submit', onEffectsRadioButtonsChange);
+  effectsSelector.removeEventListener('change', onEffectsRadioButtonsChange);
   uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
   hashtagsField.value = '';
   commentField.value = '';
