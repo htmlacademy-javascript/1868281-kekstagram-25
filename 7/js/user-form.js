@@ -130,7 +130,7 @@ const onUploadInputAddPhoto = () => {
   document.addEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
   effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
-  uploadForm.addEventListener('change', onUploadModalSubmitButtonClick);
+  uploadForm.addEventListener('submit', onUploadModalSubmitButtonClick);
 };
 
 uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
@@ -141,7 +141,7 @@ function closeUserPhotoUpload () {
   filterCloseButton.removeEventListener('click', onUploadModalCloseButtonClick);
   document.removeEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
-  effectsSelector.removeEventListener('submit', onEffectsRadioButtonsChange);
+  effectsSelector.removeEventListener('change', onEffectsRadioButtonsChange);
   uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
   hashtagsField.value = '';
   commentField.value = '';
