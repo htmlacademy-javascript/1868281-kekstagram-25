@@ -11,10 +11,9 @@ const getRandomInRange = (min, max) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomInRange(0, elements.length - 1)];
 
-const checkStringLength = (checkString, maxLength) => checkString.length <= maxLength;
-
-checkStringLength(1390, 140);
+const maxStringLength = 140;
+const checkStringLength = (value) => value.length <= maxStringLength;
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export{getRandomInRange, getRandomArrayElement, isEscapeKey};
+export{getRandomInRange, getRandomArrayElement, isEscapeKey, checkStringLength};
