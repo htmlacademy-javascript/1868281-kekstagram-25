@@ -81,7 +81,10 @@ pristine.addValidator(
   'Комментарий не более 140 символов'
 );
 
-uploadUserPhoto.addEventListener('change', openUserPhotoUpload);
+const onUploadModalSubmitButtonClick = (evt) => {
+  evt.preventDefault();
+  pristine.validate();
+};
 
 const onPopupEscKeydown = (evt) => {
   if (isEscapeKey(evt) && !document.activeElement.matches('.text__hashtags') && !document.activeElement.matches('.text__description')) {
@@ -90,34 +93,11 @@ const onPopupEscKeydown = (evt) => {
   }
 };
 
-const onUploadModalSubmitButtonClick = (evt) => {
-  evt.preventDefault();
-  pristine.validate();
+const onUploadModalCloseButtonClick = () => {
+  closeUserPhotoUpload();
 };
 
-function openUserPhotoUpload () {
-  filterContainer.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-  filterCloseButton.addEventListener('click', closeUserPhotoUpload);
-  document.addEventListener('keydown', onPopupEscKeydown);
-  scaleControlContainer.addEventListener('click', changeScaleOfUserPhoto);
-  effectsSelector.addEventListener('change', changeImgEffect);
-  uploadForm.addEventListener('change', onUploadModalSubmitButtonClick);
-}
-
-function closeUserPhotoUpload () {
-  filterContainer.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-  filterCloseButton.removeEventListener('click', closeUserPhotoUpload);
-  document.removeEventListener('keydown', onPopupEscKeydown);
-  scaleControlContainer.removeEventListener('click', changeScaleOfUserPhoto);
-  effectsSelector.removeEventListener('submit', changeImgEffect);
-  uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
-  hashtagsField.value = '';
-  commentField.value = '';
-}
-
-function changeScaleOfUserPhoto (evt) {
+const onFilterScaleButtonsClick = (evt) => {
   const input = scaleControlContainer.querySelector('.scale__control--value');
   const valueStep = 25;
   const inputIntValue = parseInt(input.value, 10);
@@ -134,11 +114,35 @@ function changeScaleOfUserPhoto (evt) {
 
   const imgScale = scaleValue / 100;
   filterImgPreview.style.transform = `scale(${imgScale})`;
-}
+};
 
-function changeImgEffect (evt) {
+const onEffectsRadioButtonsChange = (evt) => {
   const filterRadioButton = evt.target;
   if (filterRadioButton.matches('.effects__radio')) {
     filterImgPreview.className = `effects__preview--${filterRadioButton.value}`;
   }
+};
+
+const onUploadInputAddPhoto = () => {
+  filterContainer.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+  filterCloseButton.addEventListener('click', onUploadModalCloseButtonClick);
+  document.addEventListener('keydown', onPopupEscKeydown);
+  scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
+  effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
+  uploadForm.addEventListener('change', onUploadModalSubmitButtonClick);
+};
+
+uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
+
+function closeUserPhotoUpload () {
+  filterContainer.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  filterCloseButton.removeEventListener('click', onUploadModalCloseButtonClick);
+  document.removeEventListener('keydown', onPopupEscKeydown);
+  scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
+  effectsSelector.removeEventListener('submit', onEffectsRadioButtonsChange);
+  uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
+  hashtagsField.value = '';
+  commentField.value = '';
 }
