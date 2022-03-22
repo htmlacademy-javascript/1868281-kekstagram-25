@@ -130,7 +130,7 @@ const onUploadInputAddPhoto = () => {
   document.addEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
   effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
-  uploadForm.addEventListener('change', onUploadModalSubmitButtonClick);
+  uploadForm.addEventListener('submit', onUploadModalSubmitButtonClick);
 };
 
 uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
