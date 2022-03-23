@@ -10,6 +10,22 @@ const modalComments = modalContainer.querySelector('.social__comments');
 const modalComment = modalContainer.querySelector('.social__comment').cloneNode(true);
 const modalCommentsLoader = modalContainer.querySelector('.comments-loader');
 const modalCloseButton = modalContainer.querySelector('.big-picture__cancel');
+const modalCommentsFragment = document.createDocumentFragment();
+
+let COUNTER = 5;
+let commentsData = [];
+
+const drawComments = (arr) => {
+  for (let i = 0; i < arr.length; i++) {
+    const commentInfo = arr[i];
+    const commentElement = modalComment.cloneNode(true);
+    const commentElementImg = commentElement.querySelector('.social__picture');
+    commentElementImg.src = commentInfo.avatar;
+    commentElement.querySelector('.social__text').textContent = commentInfo.message;
+    commentElementImg.alt = commentInfo.name;
+    modalCommentsFragment.append(commentElement);
+  }
+};
 
 const onPopupEscKeydown = (evt) => {
   if (isEscapeKey(evt)) {
@@ -22,41 +38,54 @@ const onModalCloseButtonClick = () => {
   closeModal();
 };
 
+const onModalCommentsLoaderClick = (evt) => {
+  evt.preventDefault();
+  modalComments.innerHTML = '';
+  COUNTER += 5;
+  const slicedCommentsData = commentsData.slice(0, COUNTER);
+  if(slicedCommentsData.length <= COUNTER) {
+    modalCommentsLoader.classList.add('hidden');
+  }
+  modalCommentsCountWrapper.firstChild.textContent = (`${slicedCommentsData.length} из `);
+  drawComments(slicedCommentsData);
+  modalComments.append(modalCommentsFragment);
+};
+
 function closeModal () {
   modalContainer.classList.add('hidden');
-  modalCommentsCountWrapper.classList.remove('hidden');
-  modalCommentsLoader.classList.remove('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onPopupEscKeydown);
   modalCloseButton.removeEventListener('click', onModalCloseButtonClick);
+  modalCommentsLoader.removeEventListener('click', onModalCommentsLoaderClick);
+  commentsData = [];
+  modalCommentsFragment.innerHTML = '';
+  COUNTER = 5;
 }
 
-const showModal = ({url, description, likes, comments}) => {
+function showModal ({url, description, likes, comments}) {
+  modalComments.innerHTML = '';
   modalContainer.classList.remove('hidden');
+  document.body.classList.add('modal-open');
   modalCommentsCountWrapper.classList.add('hidden');
   modalCommentsLoader.classList.add('hidden');
-  document.body.classList.add('modal-open');
   modalCloseButton.addEventListener('click', onModalCloseButtonClick);
   document.addEventListener('keydown', onPopupEscKeydown);
+  modalCommentsLoader.addEventListener('click', onModalCommentsLoaderClick);
   modalImg.src = url;
   modalCaption.textContent = description;
   modalLikes.textContent = likes;
   modalCommentsCount.textContent = comments.length;
-
-  const modalCommentsFragment = document.createDocumentFragment();
-
-  comments.forEach(
-    ({avatar, message, name}) => {
-      const commentElement = modalComment.cloneNode(true);
-      const commentElementImg = commentElement.querySelector('.social__picture');
-      commentElementImg.src = avatar;
-      commentElement.querySelector('.social__text').textContent = message;
-      commentElementImg.alt = name;
-      modalCommentsFragment.append(commentElement);
-    }
-  );
-  modalComments.innerHTML = '';
+  comments.forEach ((element) => {
+    commentsData.push(element);
+  });
+  modalCommentsCountWrapper.firstChild.textContent = (`${5} из `);
+  drawComments(commentsData.slice(0, COUNTER));
   modalComments.append(modalCommentsFragment);
-};
+
+  if (comments.length > COUNTER) {
+    modalCommentsCountWrapper.classList.remove('hidden');
+    modalCommentsLoader.classList.remove('hidden');
+  }
+}
 
 export {showModal};
