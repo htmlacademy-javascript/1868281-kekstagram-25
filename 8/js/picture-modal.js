@@ -12,7 +12,7 @@ const modalCommentsLoader = modalContainer.querySelector('.comments-loader');
 const modalCloseButton = modalContainer.querySelector('.big-picture__cancel');
 const modalCommentsFragment = document.createDocumentFragment();
 
-let COUNTER = 5;
+let counter = 5;
 let commentsData = [];
 
 const drawComments = (arr) => {
@@ -38,15 +38,14 @@ const onModalCloseButtonClick = () => {
   closeModal();
 };
 
-const onModalCommentsLoaderClick = (evt) => {
-  evt.preventDefault();
+const onModalCommentsLoaderClick = () => {
   modalComments.innerHTML = '';
-  COUNTER += 5;
-  const slicedCommentsData = commentsData.slice(0, COUNTER);
-  if(slicedCommentsData.length <= COUNTER) {
+  counter += 5;
+  const slicedCommentsData = commentsData.slice(0, counter);
+  if(slicedCommentsData.length <= counter) {
     modalCommentsLoader.classList.add('hidden');
   }
-  modalCommentsCountWrapper.firstChild.textContent = (`${slicedCommentsData.length} из `);
+  modalCommentsCountWrapper.firstChild.textContent = slicedCommentsData.length;
   drawComments(slicedCommentsData);
   modalComments.append(modalCommentsFragment);
 };
@@ -57,17 +56,14 @@ function closeModal () {
   document.removeEventListener('keydown', onPopupEscKeydown);
   modalCloseButton.removeEventListener('click', onModalCloseButtonClick);
   modalCommentsLoader.removeEventListener('click', onModalCommentsLoaderClick);
-  commentsData = [];
   modalCommentsFragment.innerHTML = '';
-  COUNTER = 5;
+  counter = 5;
 }
 
 function showModal ({url, description, likes, comments}) {
   modalComments.innerHTML = '';
   modalContainer.classList.remove('hidden');
   document.body.classList.add('modal-open');
-  modalCommentsCountWrapper.classList.add('hidden');
-  modalCommentsLoader.classList.add('hidden');
   modalCloseButton.addEventListener('click', onModalCloseButtonClick);
   document.addEventListener('keydown', onPopupEscKeydown);
   modalCommentsLoader.addEventListener('click', onModalCommentsLoaderClick);
@@ -75,14 +71,15 @@ function showModal ({url, description, likes, comments}) {
   modalCaption.textContent = description;
   modalLikes.textContent = likes;
   modalCommentsCount.textContent = comments.length;
-  comments.forEach ((element) => {
-    commentsData.push(element);
-  });
-  modalCommentsCountWrapper.firstChild.textContent = (`${5} из `);
-  drawComments(commentsData.slice(0, COUNTER));
+  commentsData = comments.slice();
+  modalCommentsCountWrapper.firstChild.textContent = 5;
+  drawComments(commentsData.slice(0, counter));
   modalComments.append(modalCommentsFragment);
 
-  if (comments.length > COUNTER) {
+  if (comments.length <= counter) {
+    modalCommentsCountWrapper.classList.add('hidden');
+    modalCommentsLoader.classList.add('hidden');
+  } else {
     modalCommentsCountWrapper.classList.remove('hidden');
     modalCommentsLoader.classList.remove('hidden');
   }
