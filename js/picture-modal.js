@@ -53,6 +53,8 @@ const onModalCommentsLoaderClick = () => {
 function closeModal () {
   modalContainer.classList.add('hidden');
   document.body.classList.remove('modal-open');
+  modalCommentsCountWrapper.classList.remove('hidden');
+  modalCommentsLoader.classList.remove('hidden');
   document.removeEventListener('keydown', onPopupEscKeydown);
   modalCloseButton.removeEventListener('click', onModalCloseButtonClick);
   modalCommentsLoader.removeEventListener('click', onModalCommentsLoaderClick);
@@ -79,9 +81,6 @@ function showModal ({url, description, likes, comments}) {
   if (comments.length <= counter) {
     modalCommentsCountWrapper.classList.add('hidden');
     modalCommentsLoader.classList.add('hidden');
-  } else {
-    modalCommentsCountWrapper.classList.remove('hidden');
-    modalCommentsLoader.classList.remove('hidden');
   }
 }
 
