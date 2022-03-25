@@ -24,34 +24,29 @@ noUiSlider.create(effectLevelSlider, {
   step: 0.1,
   connect: 'lower',
   format: {
-    to: function (value) {
-      return value;
+    to: (value) => {
+      if (Number.isInteger(value)) {
+        return value.toFixed(0);
+      }
+      return value.toFixed(1);
     },
-    from: function (value) {
-      return parseFloat(value);
-    },
+    from: (value) => parseFloat(value),
   },
 });
 
 const onEffectsRadioButtonsChange = (evt) => {
   const filterRadioButton = evt.target.value;
+  const filterRadioButtonKey = effects[filterRadioButton];
   if (filterRadioButton === 'none') {
-    filterImgPreview.style.filter = `${effects[filterRadioButton]['filter']}`;
+    filterImgPreview.style.filter = `${filterRadioButtonKey.filter}`;
     effectLevelWrapper.classList.add('hidden');
   } else {
     effectLevelWrapper.classList.remove('hidden');
     filterImgPreview.className = `effects__preview--${filterRadioButton}`;
-    effectLevelSlider.noUiSlider.updateOptions({
-      range: {
-        min: effects[filterRadioButton]['min'],
-        max: effects[filterRadioButton]['max'],
-      },
-      start: effects[filterRadioButton]['start'],
-      step : effects[filterRadioButton]['step'],
-    });
+    effectLevelSlider.noUiSlider.updateOptions(filterRadioButtonKey);
     effectLevelSlider.noUiSlider.on('update', () => {
       effectLevelInput.value = effectLevelSlider.noUiSlider.get();
-      filterImgPreview.style.filter = `${effects[filterRadioButton]['filter']}(${effectLevelInput.value}${effects[filterRadioButton]['unit']})`;
+      filterImgPreview.style.filter = `${filterRadioButtonKey.filter}(${effectLevelInput.value}${filterRadioButtonKey.unit})`;
     });
   }
 };
