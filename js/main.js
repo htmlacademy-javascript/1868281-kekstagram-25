@@ -1,6 +1,10 @@
-import {createUsersPosts} from './data.js';
 import {renderMiniPosts} from './picture.js';
-import './user-form.js';
+import {setUserFormSubmit} from './user-form.js';
+import {closeUserPhotoUpload} from './user-form.js';
+import {getData} from './api.js';
 
-const usersPosts = createUsersPosts(25);
-renderMiniPosts(usersPosts);
+getData((data) => {
+  renderMiniPosts(data);
+});
+
+setUserFormSubmit(closeUserPhotoUpload);

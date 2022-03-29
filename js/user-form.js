@@ -1,6 +1,7 @@
 import {isEscapeKey} from './util.js';
 import {checkStringLength} from './util.js';
 import {effects} from './photo-effects.js';
+import {sendData} from './api.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadUserPhoto = uploadForm.querySelector('.img-upload__input');
@@ -14,6 +15,68 @@ const commentField = uploadForm.querySelector('.text__description');
 const effectLevelWrapper = uploadForm.querySelector('.effect-level');
 const effectLevelSlider = uploadForm.querySelector('.effect-level__slider');
 const effectLevelInput = uploadForm.querySelector('.effect-level__value');
+const submitButton = uploadForm.querySelector('.img-upload__submit');
+const succesFormTemplate = document.querySelector('#success').content.querySelector('.success');
+const succesFormElement = succesFormTemplate.cloneNode(true);
+const successFormButton = succesFormElement.querySelector('.success__button');
+const errorFormTemplate = document.querySelector('#error').content.querySelector('.error');
+const errorFormElement = errorFormTemplate.cloneNode(true);
+const errorFormButton = errorFormElement.querySelector('.error__button');
+const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
+const loadingFormElement = loadingFormTemplate.cloneNode(true);
+
+const showErrorBlock = () => {
+  document.body.append(errorFormElement);
+  document.addEventListener('keydown', onPopupEscKeydown);
+  document.addEventListener('click', onOuterClick);
+  errorFormButton.addEventListener('click', onPopupErrorCloseButtonClick);
+};
+
+const hideErrorBlock = () => {
+  document.body.removeChild(errorFormElement);
+  document.removeEventListener('keydown', onPopupEscKeydown);
+  document.removeEventListener('click', onOuterClick);
+};
+
+
+const showLoadingBlock = () => {
+  document.body.append(loadingFormElement);
+};
+
+const hideLoadingBlock = () => {
+  document.body.removeChild(loadingFormElement);
+};
+
+
+const showSuccessBlock = () => {
+  document.body.append(succesFormElement);
+  successFormButton.addEventListener('click', onPopupSuccessCloseButtonClick);
+  document.addEventListener('keydown', onPopupEscKeydown);
+  document.addEventListener('click', onOuterClick);
+};
+
+const closeSuccessBlock = () => {
+  document.body.removeChild(succesFormElement);
+  document.removeEventListener('keydown', onPopupEscKeydown);
+  document.removeEventListener('click', onOuterClick);
+};
+
+function onPopupSuccessCloseButtonClick () {
+  closeSuccessBlock();
+}
+
+function onPopupErrorCloseButtonClick () {
+  hideErrorBlock();
+}
+
+function onOuterClick (evt) {
+  if(!evt.target.matches('.success__inner') && document.body.contains(succesFormElement)) {
+    closeSuccessBlock();
+  }
+  if(!evt.target.matches('.error__inner') && document.body.contains(errorFormElement)) {
+    hideErrorBlock();
+  }
+}
 
 noUiSlider.create(effectLevelSlider, {
   range: {
@@ -140,17 +203,56 @@ pristine.addValidator(
   'Комментарий не более 140 символов'
 );
 
-const onUploadModalSubmitButtonClick = (evt) => {
-  evt.preventDefault();
-  pristine.validate();
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Публикуем...';
 };
 
-const onPopupEscKeydown = (evt) => {
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Опубликовать';
+};
+
+const setUserFormSubmit = (onSuccess) => {
+  uploadForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+
+    const isValid = pristine.validate();
+    if (isValid) {
+      blockSubmitButton();
+      showLoadingBlock();
+      closeUserPhotoUpload();
+      sendData(
+        () => {
+          onSuccess();
+          unblockSubmitButton();
+          showSuccessBlock();
+          hideLoadingBlock();
+        },
+        () => { showErrorBlock();
+          unblockSubmitButton();
+          hideLoadingBlock();
+        },
+        new FormData(evt.target),
+      );
+    }
+  });
+};
+
+function onPopupEscKeydown (evt) {
   if (isEscapeKey(evt) && !document.activeElement.matches('.text__hashtags') && !document.activeElement.matches('.text__description')) {
     evt.preventDefault();
     closeUserPhotoUpload();
   }
-};
+  if(isEscapeKey(evt) && document.body.contains(succesFormElement)) {
+    evt.preventDefault();
+    closeSuccessBlock();
+  }
+  if(isEscapeKey(evt) && document.body.contains(errorFormElement)) {
+    evt.preventDefault();
+    hideErrorBlock();
+  }
+}
 
 const onUploadModalCloseButtonClick = () => {
   closeUserPhotoUpload();
@@ -164,7 +266,6 @@ const onUploadInputAddPhoto = () => {
   document.addEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
   effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
-  uploadForm.addEventListener('submit', onUploadModalSubmitButtonClick);
 };
 
 uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
@@ -176,9 +277,10 @@ function closeUserPhotoUpload () {
   document.removeEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
   effectsSelector.removeEventListener('change', onEffectsRadioButtonsChange);
-  uploadForm.removeEventListener('submit', onUploadModalSubmitButtonClick);
-  hashtagsField.value = '';
-  commentField.value = '';
   filterImgPreview.style = '';
   filterImgPreview.className = '';
+  uploadForm.reset();
 }
+
+export {setUserFormSubmit};
+export {closeUserPhotoUpload};

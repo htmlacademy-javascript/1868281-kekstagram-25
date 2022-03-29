@@ -42,7 +42,7 @@ const onModalCommentsLoaderClick = () => {
   modalComments.innerHTML = '';
   counter += 5;
   const slicedCommentsData = commentsData.slice(0, counter);
-  if(slicedCommentsData.length <= counter) {
+  if(slicedCommentsData.length <= counter - 1) {
     modalCommentsLoader.classList.add('hidden');
   }
   modalCommentsCountWrapper.firstChild.textContent = slicedCommentsData.length;
