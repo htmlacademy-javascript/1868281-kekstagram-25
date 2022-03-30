@@ -15,7 +15,7 @@ const commentField = uploadForm.querySelector('.text__description');
 const effectLevelWrapper = uploadForm.querySelector('.effect-level');
 const effectLevelSlider = uploadForm.querySelector('.effect-level__slider');
 const effectLevelInput = uploadForm.querySelector('.effect-level__value');
-const submitButton = uploadForm.querySelector('.img-upload__submit');
+const submitButton = uploadForm.querySelector('#upload-submit');
 const succesFormTemplate = document.querySelector('#success').content.querySelector('.success');
 const succesFormElement = succesFormTemplate.cloneNode(true);
 const successFormButton = succesFormElement.querySelector('.success__button');
@@ -25,58 +25,24 @@ const errorFormButton = errorFormElement.querySelector('.error__button');
 const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
 const loadingFormElement = loadingFormTemplate.cloneNode(true);
 
-const showErrorBlock = () => {
-  document.body.append(errorFormElement);
-  document.addEventListener('keydown', onPopupEscKeydown);
-  document.addEventListener('click', onOuterClick);
-  errorFormButton.addEventListener('click', onPopupErrorCloseButtonClick);
-};
-
-const hideErrorBlock = () => {
-  document.body.removeChild(errorFormElement);
-  document.removeEventListener('keydown', onPopupEscKeydown);
-  document.removeEventListener('click', onOuterClick);
-};
-
-
-const showLoadingBlock = () => {
-  document.body.append(loadingFormElement);
-};
-
-const hideLoadingBlock = () => {
-  document.body.removeChild(loadingFormElement);
-};
-
-
-const showSuccessBlock = () => {
-  document.body.append(succesFormElement);
-  successFormButton.addEventListener('click', onPopupSuccessCloseButtonClick);
-  document.addEventListener('keydown', onPopupEscKeydown);
-  document.addEventListener('click', onOuterClick);
-};
-
-const closeSuccessBlock = () => {
-  document.body.removeChild(succesFormElement);
-  document.removeEventListener('keydown', onPopupEscKeydown);
-  document.removeEventListener('click', onOuterClick);
-};
-
-function onPopupSuccessCloseButtonClick () {
-  closeSuccessBlock();
-}
-
-function onPopupErrorCloseButtonClick () {
-  hideErrorBlock();
-}
-
-function onOuterClick (evt) {
-  if(!evt.target.matches('.success__inner') && document.body.contains(succesFormElement)) {
-    closeSuccessBlock();
+const onFilterScaleButtonsClick = (evt) => {
+  const input = scaleControlContainer.querySelector('.scale__control--value');
+  const valueStep = 25;
+  const inputIntValue = parseInt(input.value, 10);
+  let scaleValue;
+  const scaleButton = evt.target;
+  if (scaleButton.matches('.scale__control--bigger') && inputIntValue < 100) {
+    scaleValue = inputIntValue + valueStep;
+    input.value = `${scaleValue}%`;
   }
-  if(!evt.target.matches('.error__inner') && document.body.contains(errorFormElement)) {
-    hideErrorBlock();
+  if (scaleButton.matches('.scale__control--smaller') && inputIntValue > 25) {
+    scaleValue = inputIntValue - valueStep;
+    input.value = `${scaleValue}%`;
   }
-}
+
+  const imgScale = scaleValue / 100;
+  filterImgPreview.style.transform = `scale(${imgScale})`;
+};
 
 noUiSlider.create(effectLevelSlider, {
   range: {
@@ -114,25 +80,6 @@ const onEffectsRadioButtonsChange = (evt) => {
   }
 };
 
-const onFilterScaleButtonsClick = (evt) => {
-  const input = scaleControlContainer.querySelector('.scale__control--value');
-  const valueStep = 25;
-  const inputIntValue = parseInt(input.value, 10);
-  let scaleValue;
-  const scaleButton = evt.target;
-  if (scaleButton.matches('.scale__control--bigger') && inputIntValue < 100) {
-    scaleValue = inputIntValue + valueStep;
-    input.value = `${scaleValue}%`;
-  }
-  if (scaleButton.matches('.scale__control--smaller') && inputIntValue > 25) {
-    scaleValue = inputIntValue - valueStep;
-    input.value = `${scaleValue}%`;
-  }
-
-  const imgScale = scaleValue / 100;
-  filterImgPreview.style.transform = `scale(${imgScale})`;
-};
-
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__text',
   errorClass: 'img-upload__text--invalid',
@@ -162,6 +109,12 @@ const validateArrayOfHashtags = (value) => {
   return !hashtags.includes(false);
 };
 
+pristine.addValidator(
+  hashtagsField,
+  validateArrayOfHashtags,
+  'текст после # должен состоять из букв и чисел, после хэшТега нужно ставить пробел'
+);
+
 const validateDuplicateHashtag = (value) => {
   if (value.length === 0) {
     return true;
@@ -170,6 +123,12 @@ const validateDuplicateHashtag = (value) => {
   const swapArr = [...new Set(hashtags.map((element) => element.toLowerCase()))];
   return hashtags.length === swapArr.length;
 };
+
+pristine.addValidator(
+  hashtagsField,
+  validateDuplicateHashtag,
+  'хэштеги не должны повторяться'
+);
 
 const validateMaxHashTagsNumber = (value) => {
   if (value.length === 0) {
@@ -186,31 +145,50 @@ pristine.addValidator(
 );
 
 pristine.addValidator(
-  hashtagsField,
-  validateDuplicateHashtag,
-  'хэштеги не должны повторяться'
-);
-
-pristine.addValidator(
-  hashtagsField,
-  validateArrayOfHashtags,
-  'текст после # должен состоять из букв и чисел, после хэшТега нужно ставить пробел'
-);
-
-pristine.addValidator(
   commentField,
   checkStringLength,
   'Комментарий не более 140 символов'
 );
 
-const blockSubmitButton = () => {
-  submitButton.disabled = true;
-  submitButton.textContent = 'Публикуем...';
+const showPopUp = (element, button) => {
+  document.body.append(element);
+  document.addEventListener('keydown', onPopupEscKeydown);
+  document.addEventListener('click', onOuterClick);
+  button.addEventListener('click', onPopupCloseButtonClick);
 };
 
-const unblockSubmitButton = () => {
-  submitButton.disabled = false;
-  submitButton.textContent = 'Опубликовать';
+const closePopUp = (element) => {
+  document.body.removeChild(element);
+  document.removeEventListener('keydown', onPopupEscKeydown);
+  document.removeEventListener('click', onOuterClick);
+};
+
+function onPopupCloseButtonClick (evt, element) {
+  if (evt.target === element) {
+    closePopUp(element);
+  }
+}
+
+function onOuterClick (evt) {
+  if(!evt.target.matches('.success__inner') && document.body.contains(succesFormElement)) {
+    closePopUp(succesFormElement);
+  }
+  if(!evt.target.matches('.error__inner') && document.body.contains(errorFormElement)) {
+    closePopUp(errorFormElement);
+  }
+}
+
+const preventMultiSend = (boolean, text) => {
+  submitButton.disabled = boolean;
+  submitButton.textContent = text;
+};
+
+const showLoadingBlock = () => {
+  document.body.append(loadingFormElement);
+};
+
+const hideLoadingBlock = () => {
+  document.body.removeChild(loadingFormElement);
 };
 
 const setUserFormSubmit = (onSuccess) => {
@@ -219,25 +197,28 @@ const setUserFormSubmit = (onSuccess) => {
 
     const isValid = pristine.validate();
     if (isValid) {
-      blockSubmitButton();
+      preventMultiSend(true, 'Публикуем...');
       showLoadingBlock();
-      closeUserPhotoUpload();
       sendData(
         () => {
           onSuccess();
-          unblockSubmitButton();
-          showSuccessBlock();
+          showPopUp(succesFormElement, successFormButton);
           hideLoadingBlock();
+          preventMultiSend(false, 'Опубликовать');
         },
-        () => { showErrorBlock();
-          unblockSubmitButton();
+        () => {
+          showPopUp(errorFormElement, errorFormButton);
           hideLoadingBlock();
+          preventMultiSend(false, 'Опубликовать');
+          closeUserPhotoUpload();
         },
         new FormData(evt.target),
       );
     }
   });
 };
+
+setUserFormSubmit(closeUserPhotoUpload);
 
 function onPopupEscKeydown (evt) {
   if (isEscapeKey(evt) && !document.activeElement.matches('.text__hashtags') && !document.activeElement.matches('.text__description')) {
@@ -246,11 +227,11 @@ function onPopupEscKeydown (evt) {
   }
   if(isEscapeKey(evt) && document.body.contains(succesFormElement)) {
     evt.preventDefault();
-    closeSuccessBlock();
+    closePopUp(succesFormElement);
   }
   if(isEscapeKey(evt) && document.body.contains(errorFormElement)) {
     evt.preventDefault();
-    hideErrorBlock();
+    closePopUp(errorFormElement);
   }
 }
 
@@ -281,6 +262,3 @@ function closeUserPhotoUpload () {
   filterImgPreview.className = '';
   uploadForm.reset();
 }
-
-export {setUserFormSubmit};
-export {closeUserPhotoUpload};
