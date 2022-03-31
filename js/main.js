@@ -1,6 +1,7 @@
-import {createUsersPosts} from './data.js';
 import {renderMiniPosts} from './picture.js';
 import './user-form.js';
+import {getData} from './api.js';
 
-const usersPosts = createUsersPosts(25);
-renderMiniPosts(usersPosts);
+getData((data) => {
+  renderMiniPosts(data);
+});
