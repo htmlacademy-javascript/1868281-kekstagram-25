@@ -28,7 +28,7 @@ const shuffleArray = (data) => {
   const dataCopy = data.slice();
   const iterations = MAX_RANDOM_ELEMENTS < dataCopy.length ? MAX_RANDOM_ELEMENTS : dataCopy.length - 1;
   for (let i = 0; i < iterations; i++) {
-    const randomIndex = getRandomInRange(dataCopy.length, i);
+    const randomIndex = getRandomInRange(dataCopy.length - 1, i);
     const currentElement = dataCopy[i];
     dataCopy[i] = dataCopy[randomIndex];
     dataCopy[randomIndex] = currentElement;
@@ -38,10 +38,10 @@ const shuffleArray = (data) => {
 
 const onFilterButtonsClick = (data) => (evt) => {
   const previews = previewsContainer.querySelectorAll('.picture');
-  const filterTarget = evt.target;
+  const filterTarget = evt.target.closest('button');
   let result;
 
-  if (filterTarget.closest('button')) {
+  if (filterTarget) {
     deletePreviwesElements(previews);
     toggleActiveFilter(filterTarget);
   }

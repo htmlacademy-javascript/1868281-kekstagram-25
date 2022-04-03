@@ -6,7 +6,7 @@ const getRandomInRange = (min, max) => {
     tMin = max;
     tMax = min;
   }
-  return Math.floor(Math.random() * (tMax - tMin)) + tMin;
+  return Math.floor(Math.random() * (tMax - tMin + 1)) + tMin;
 };
 
 const getRandomArrayElement = (elements) => elements[getRandomInRange(0, elements.length - 1)];
