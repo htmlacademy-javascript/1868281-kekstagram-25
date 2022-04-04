@@ -4,6 +4,12 @@ const picturesContainer = document.querySelector('.pictures');
 const randomPostTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const picturesFragment = document.createDocumentFragment();
 
+
+const showSortingBlock = () => {
+  const sortPicturesContainer = document.querySelector('.img-filters');
+  sortPicturesContainer.classList.remove('img-filters--inactive');
+};
+
 const renderMiniPosts = (usersPosts) => {
   usersPosts.forEach((userPost) => {
     const {url, likes, comments} = userPost;
@@ -20,4 +26,4 @@ const renderMiniPosts = (usersPosts) => {
   picturesContainer.append(picturesFragment);
 };
 
-export{renderMiniPosts};
+export{renderMiniPosts, showSortingBlock};
