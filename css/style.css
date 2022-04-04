@@ -710,6 +710,16 @@ main {
   border-radius: 5px;
 }
 
+.text__wrapper .text__wrapper-error {
+  width: 450px;
+  margin: -10px auto 10px auto;
+}
+
+.text__wrapper:last-child .text__wrapper-error{
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
 
 /**
  * Кнопка для отправки изображения
