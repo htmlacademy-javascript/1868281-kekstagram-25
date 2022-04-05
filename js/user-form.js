@@ -7,6 +7,7 @@ const uploadForm = document.querySelector('.img-upload__form');
 const uploadUserPhoto = uploadForm.querySelector('.img-upload__input');
 const filterContainer = uploadForm.querySelector('.img-upload__overlay');
 const filterImgPreview = uploadForm.querySelector('.img-upload__preview img');
+const filterImgEffectsPreviews = uploadForm.querySelectorAll('.effects__preview');
 const filterCloseButton = uploadForm.querySelector('.img-upload__cancel');
 const scaleControlContainer = uploadForm.querySelector('.img-upload__scale');
 const effectsSelector = uploadForm.querySelector('.effects__list');
@@ -24,6 +25,7 @@ const errorFormElement = errorFormTemplate.cloneNode(true);
 const errorFormButton = errorFormElement.querySelector('.error__button');
 const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
 const loadingFormElement = loadingFormTemplate.cloneNode(true);
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const onFilterScaleButtonsClick = (evt) => {
   const input = scaleControlContainer.querySelector('.scale__control--value');
@@ -81,12 +83,12 @@ const onEffectsRadioButtonsChange = (evt) => {
 };
 
 const pristine = new Pristine(uploadForm, {
-  classTo: 'img-upload__text',
-  errorClass: 'img-upload__text--invalid',
-  successClass: 'img-upload__text--valid',
-  errorTextParent: 'img-upload__text',
+  classTo: 'text__wrapper',
+  errorClass: 'text__wrapper--invalid',
+  successClass: 'text__wraper--valid',
+  errorTextParent: 'text__wrapper',
   errorTextTag: 'div',
-  errorTextClass: 'img-upload__form-error'
+  errorTextClass: 'text__wrapper-error'
 });
 
 const getArrayOfHashtags = (value) => {
@@ -112,7 +114,7 @@ const validateArrayOfHashtags = (value) => {
 pristine.addValidator(
   hashtagsField,
   validateArrayOfHashtags,
-  'текст после # должен состоять из букв и чисел, после хэшТега нужно ставить пробел'
+  'текст после # должен состоять из букв и чисел, после хэшТега нужно ставить пробел.'
 );
 
 const validateDuplicateHashtag = (value) => {
@@ -127,7 +129,7 @@ const validateDuplicateHashtag = (value) => {
 pristine.addValidator(
   hashtagsField,
   validateDuplicateHashtag,
-  'хэштеги не должны повторяться'
+  'хэштеги не должны повторяться.',
 );
 
 const validateMaxHashTagsNumber = (value) => {
@@ -141,7 +143,7 @@ const validateMaxHashTagsNumber = (value) => {
 pristine.addValidator(
   hashtagsField,
   validateMaxHashTagsNumber,
-  'Не более 5 хешТэгов'
+  'Не более 5 хешТэгов.'
 );
 
 pristine.addValidator(
@@ -149,6 +151,15 @@ pristine.addValidator(
   checkStringLength,
   'Комментарий не более 140 символов'
 );
+
+
+const onFieldTyping = () => {
+  if (!pristine.validate()) {
+    submitButton.classList.add('img-upload__submit--disabled');
+  } else {
+    submitButton.classList.remove('img-upload__submit--disabled');
+  }
+};
 
 const showPopUp = (element, button) => {
   document.body.append(element);
@@ -191,14 +202,20 @@ const hideLoadingBlock = () => {
   document.body.removeChild(loadingFormElement);
 };
 
+const displayErrorPopUp = (title, button) => {
+  errorFormElement.querySelector('.error__title').textContent = title;
+  errorFormButton.textContent = button;
+  showPopUp(errorFormElement, errorFormButton);
+};
+
 const setUserFormSubmit = (onSuccess) => {
   uploadForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
-
     const isValid = pristine.validate();
     if (isValid) {
       preventMultiSend(true, 'Публикуем...');
       showLoadingBlock();
+      filterContainer.classList.add('hidden');
       sendData(
         () => {
           onSuccess();
@@ -207,7 +224,7 @@ const setUserFormSubmit = (onSuccess) => {
           preventMultiSend(false, 'Опубликовать');
         },
         () => {
-          showPopUp(errorFormElement, errorFormButton);
+          displayErrorPopUp('Ошибка загрузки файла', 'Загрузить другой файл');
           hideLoadingBlock();
           preventMultiSend(false, 'Опубликовать');
           closeUserPhotoUpload();
@@ -240,14 +257,30 @@ const onUploadModalCloseButtonClick = () => {
 };
 
 const onUploadInputAddPhoto = () => {
-  filterContainer.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-  effectLevelWrapper.classList.add('hidden');
-  filterCloseButton.addEventListener('click', onUploadModalCloseButtonClick);
-  document.addEventListener('keydown', onPopupEscKeydown);
-  scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
-  effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
+  const file = uploadUserPhoto.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((format) => fileName.endsWith(format));
+  const url = URL.createObjectURL(file);
+  if (matches) {
+    filterImgPreview.src = url;
+    filterImgEffectsPreviews.forEach((preview) => {
+      preview.style.backgroundImage = `url(${url})`;
+    });
+    filterContainer.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    effectLevelWrapper.classList.add('hidden');
+    filterCloseButton.addEventListener('click', onUploadModalCloseButtonClick);
+    document.addEventListener('keydown', onPopupEscKeydown);
+    scaleControlContainer.addEventListener('click', onFilterScaleButtonsClick);
+    effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
+    hashtagsField.addEventListener('input', onFieldTyping);
+    commentField.addEventListener('input', onFieldTyping);
+  } else {
+    displayErrorPopUp('Недопустимый формат фотографии', 'Загрузить фото .jpg .jpeg .png .gif');
+    uploadForm.reset();
+  }
 };
+
 
 uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
 
@@ -258,7 +291,11 @@ function closeUserPhotoUpload () {
   document.removeEventListener('keydown', onPopupEscKeydown);
   scaleControlContainer.removeEventListener('click', onFilterScaleButtonsClick);
   effectsSelector.removeEventListener('change', onEffectsRadioButtonsChange);
+  hashtagsField.removeEventListener('input', onFieldTyping);
+  commentField.removeEventListener('input', onFieldTyping);
   filterImgPreview.style = '';
   filterImgPreview.className = '';
   uploadForm.reset();
 }
+
+export {displayErrorPopUp};
