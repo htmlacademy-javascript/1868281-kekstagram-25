@@ -260,10 +260,11 @@ const onUploadInputAddPhoto = () => {
   const file = uploadUserPhoto.files[0];
   const fileName = file.name.toLowerCase();
   const matches = FILE_TYPES.some((format) => fileName.endsWith(format));
+  const url = URL.createObjectURL(file);
   if (matches) {
-    filterImgPreview.src = URL.createObjectURL(file);
+    filterImgPreview.src = url;
     filterImgEffectsPreviews.forEach((preview) => {
-      preview.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+      preview.style.backgroundImage = `url(${url})`;
     });
     filterContainer.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -274,8 +275,7 @@ const onUploadInputAddPhoto = () => {
     effectsSelector.addEventListener('change', onEffectsRadioButtonsChange);
     hashtagsField.addEventListener('input', onFieldTyping);
     commentField.addEventListener('input', onFieldTyping);
-  }
-  if (!matches) {
+  } else {
     displayErrorPopUp('Недопустимый формат фотографии', 'Загрузить фото .jpg .jpeg .png .gif');
     uploadForm.reset();
   }
