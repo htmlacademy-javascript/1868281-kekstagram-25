@@ -1,7 +1,7 @@
 import {isEscapeKey} from './util.js';
-import {checkStringLength} from './util.js';
 import {effects} from './photo-effects.js';
-import {sendData} from './api.js';
+import {serverRequest} from './api.js';
+import {PopUpsErrorsText} from './error-popup-text.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadUserPhoto = uploadForm.querySelector('.img-upload__input');
@@ -25,24 +25,30 @@ const errorFormElement = errorFormTemplate.cloneNode(true);
 const errorFormButton = errorFormElement.querySelector('.error__button');
 const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
 const loadingFormElement = loadingFormTemplate.cloneNode(true);
+const HASHTAG_FORMAT = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
+const MAX_STRING_LENGTH = 140;
+const MAX_HASHTAGS_AMOUNT = 5;
+const MAX_HASHTAG_LENGTH = 20;
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const onFilterScaleButtonsClick = (evt) => {
   const input = scaleControlContainer.querySelector('.scale__control--value');
-  const valueStep = 25;
+  const VALUE_STEP = 25;
+  const MAX_VALUE = 100;
+  const MIN_VALUE = 25;
   const inputIntValue = parseInt(input.value, 10);
   let scaleValue;
   const scaleButton = evt.target;
-  if (scaleButton.matches('.scale__control--bigger') && inputIntValue < 100) {
-    scaleValue = inputIntValue + valueStep;
+  if (scaleButton.matches('.scale__control--bigger') && inputIntValue < MAX_VALUE) {
+    scaleValue = inputIntValue + VALUE_STEP;
     input.value = `${scaleValue}%`;
   }
-  if (scaleButton.matches('.scale__control--smaller') && inputIntValue > 25) {
-    scaleValue = inputIntValue - valueStep;
+  if (scaleButton.matches('.scale__control--smaller') && inputIntValue > MIN_VALUE) {
+    scaleValue = inputIntValue - VALUE_STEP;
     input.value = `${scaleValue}%`;
   }
 
-  const imgScale = scaleValue / 100;
+  const imgScale = scaleValue / MAX_VALUE;
   filterImgPreview.style.transform = `scale(${imgScale})`;
 };
 
@@ -103,24 +109,19 @@ const getArrayOfHashtags = (value) => {
 };
 
 const validateArrayOfHashtags = (value) => {
-  if (value.length === 0) {
-    return true;
-  }
-  const regularExpression = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
-  const hashtags = getArrayOfHashtags(value).map((element) =>regularExpression.test(element));
+  const hashtags = getArrayOfHashtags(value).map((element) => HASHTAG_FORMAT.test(element));
   return !hashtags.includes(false);
 };
 
 pristine.addValidator(
   hashtagsField,
   validateArrayOfHashtags,
-  'текст после # должен состоять из букв и чисел, после хэшТега нужно ставить пробел.'
+  `текст после # должен состоять из букв и чисел.
+   максимальная длинна одного хэштега ${MAX_HASHTAG_LENGTH} символов.
+   после хэштега нужно ставить пробел.`
 );
 
 const validateDuplicateHashtag = (value) => {
-  if (value.length === 0) {
-    return true;
-  }
   const hashtags = getArrayOfHashtags(value);
   const swapArr = [...new Set(hashtags.map((element) => element.toLowerCase()))];
   return hashtags.length === swapArr.length;
@@ -133,25 +134,23 @@ pristine.addValidator(
 );
 
 const validateMaxHashTagsNumber = (value) => {
-  if (value.length === 0) {
-    return true;
-  }
   const hashtags = getArrayOfHashtags(value);
-  return hashtags.length <= 5;
+  return hashtags.length <= MAX_HASHTAGS_AMOUNT;
 };
 
 pristine.addValidator(
   hashtagsField,
   validateMaxHashTagsNumber,
-  'Не более 5 хешТэгов.'
+  `Не более ${MAX_HASHTAGS_AMOUNT} хешТэгов.`
 );
+
+const checkStringLength = (value) => value.length <= MAX_STRING_LENGTH;
 
 pristine.addValidator(
   commentField,
   checkStringLength,
-  'Комментарий не более 140 символов'
+  `Комментарий не более ${MAX_STRING_LENGTH} символов.`
 );
-
 
 const onFieldTyping = () => {
   if (!pristine.validate()) {
@@ -189,9 +188,8 @@ function onOuterClick (evt) {
   }
 }
 
-const preventMultiSend = (boolean, text) => {
+const preventMultiSend = (boolean) => {
   submitButton.disabled = boolean;
-  submitButton.textContent = text;
 };
 
 const showLoadingBlock = () => {
@@ -213,23 +211,24 @@ const setUserFormSubmit = (onSuccess) => {
     evt.preventDefault();
     const isValid = pristine.validate();
     if (isValid) {
-      preventMultiSend(true, 'Публикуем...');
+      preventMultiSend(true);
       showLoadingBlock();
       filterContainer.classList.add('hidden');
-      sendData(
+      serverRequest(
         () => {
           onSuccess();
           showPopUp(succesFormElement, successFormButton);
           hideLoadingBlock();
-          preventMultiSend(false, 'Опубликовать');
+          preventMultiSend(false);
         },
         () => {
-          displayErrorPopUp('Ошибка загрузки файла', 'Загрузить другой файл');
+          displayErrorPopUp(PopUpsErrorsText.POST.HEADING, PopUpsErrorsText.POST.BUTTON);
           hideLoadingBlock();
-          preventMultiSend(false, 'Опубликовать');
+          preventMultiSend(false);
           closeUserPhotoUpload();
         },
-        new FormData(evt.target),
+        'POST',
+        new FormData(uploadForm),
       );
     }
   });
@@ -276,11 +275,10 @@ const onUploadInputAddPhoto = () => {
     hashtagsField.addEventListener('input', onFieldTyping);
     commentField.addEventListener('input', onFieldTyping);
   } else {
-    displayErrorPopUp('Недопустимый формат фотографии', 'Загрузить фото .jpg .jpeg .png .gif');
+    displayErrorPopUp(PopUpsErrorsText.FORMAT.HEADING, PopUpsErrorsText.FORMAT.BUTTON);
     uploadForm.reset();
   }
 };
-
 
 uploadUserPhoto.addEventListener('change', onUploadInputAddPhoto);
 

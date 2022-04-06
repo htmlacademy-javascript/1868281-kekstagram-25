@@ -4,7 +4,6 @@ const picturesContainer = document.querySelector('.pictures');
 const randomPostTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const picturesFragment = document.createDocumentFragment();
 
-
 const showSortingBlock = () => {
   const sortPicturesContainer = document.querySelector('.img-filters');
   sortPicturesContainer.classList.remove('img-filters--inactive');

@@ -13,6 +13,7 @@ const modalCloseButton = modalContainer.querySelector('.big-picture__cancel');
 const modalCommentsFragment = document.createDocumentFragment();
 
 let counter = 5;
+const LOAD_MORE_STEP = 5;
 let commentsData = [];
 
 const drawComments = (arr) => {
@@ -40,7 +41,7 @@ const onModalCloseButtonClick = () => {
 
 const onModalCommentsLoaderClick = () => {
   modalComments.innerHTML = '';
-  counter += 5;
+  counter += LOAD_MORE_STEP;
   const slicedCommentsData = commentsData.slice(0, counter);
   if(slicedCommentsData.length <= counter - 1) {
     modalCommentsLoader.classList.add('hidden');
