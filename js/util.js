@@ -9,11 +9,6 @@ const getRandomInRange = (min, max) => {
   return Math.floor(Math.random() * (tMax - tMin + 1)) + tMin;
 };
 
-const getRandomArrayElement = (elements) => elements[getRandomInRange(0, elements.length - 1)];
-
-const maxStringLength = 140;
-const checkStringLength = (value) => value.length <= maxStringLength;
-
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
 const debounce = (callback, timeoutDelay) => {
@@ -24,4 +19,4 @@ const debounce = (callback, timeoutDelay) => {
   };
 };
 
-export{getRandomInRange, getRandomArrayElement, isEscapeKey, checkStringLength, debounce};
+export{getRandomInRange, isEscapeKey, debounce};

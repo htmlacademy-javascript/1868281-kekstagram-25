@@ -1,15 +1,17 @@
 import {renderMiniPosts, showSortingBlock} from './picture.js';
 import {displayErrorPopUp} from'./user-form.js';
-import {getData} from './api.js';
+import {serverRequest} from './api.js';
 import {setPicturesFilter} from './pictures-sort.js';
+import {PopUpsErrorsText} from './error-popup-text.js';
 
-getData(
+serverRequest(
   (data) => {
     showSortingBlock();
     renderMiniPosts(data);
     setPicturesFilter(data);
   },
   () => {
-    displayErrorPopUp('Ошибка запроса на сервер', 'Попробуйте позднее');
-  }
+    displayErrorPopUp(PopUpsErrorsText.GET.HEADING, PopUpsErrorsText.GET.BUTTON);
+  },
+  'GET',
 );
