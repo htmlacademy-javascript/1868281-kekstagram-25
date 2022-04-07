@@ -11,21 +11,20 @@ const modalComment = modalContainer.querySelector('.social__comment').cloneNode(
 const modalCommentsLoader = modalContainer.querySelector('.comments-loader');
 const modalCloseButton = modalContainer.querySelector('.big-picture__cancel');
 const modalCommentsFragment = document.createDocumentFragment();
-
-let counter = 5;
 const LOAD_MORE_STEP = 5;
+let counter = 5;
 let commentsData = [];
 
-const drawComments = (arr) => {
-  for (let i = 0; i < arr.length; i++) {
-    const commentInfo = arr[i];
+const drawComments = (comments) => {
+  comments.forEach((comment) => {
+    const {avatar, message, name} = comment;
     const commentElement = modalComment.cloneNode(true);
     const commentElementImg = commentElement.querySelector('.social__picture');
-    commentElementImg.src = commentInfo.avatar;
-    commentElement.querySelector('.social__text').textContent = commentInfo.message;
-    commentElementImg.alt = commentInfo.name;
+    commentElementImg.src = avatar;
+    commentElement.querySelector('.social__text').textContent = message;
+    commentElementImg.alt = name;
     modalCommentsFragment.append(commentElement);
-  }
+  });
 };
 
 const onPopupEscKeydown = (evt) => {
