@@ -10,6 +10,7 @@ const filterImgPreview = uploadForm.querySelector('.img-upload__preview img');
 const filterImgEffectsPreviews = uploadForm.querySelectorAll('.effects__preview');
 const filterCloseButton = uploadForm.querySelector('.img-upload__cancel');
 const scaleControlContainer = uploadForm.querySelector('.img-upload__scale');
+const scaleControlInput = scaleControlContainer.querySelector('.scale__control--value');
 const effectsSelector = uploadForm.querySelector('.effects__list');
 const hashtagsField = uploadForm.querySelector('.text__hashtags');
 const commentField = uploadForm.querySelector('.text__description');
@@ -25,6 +26,9 @@ const errorFormElement = errorFormTemplate.cloneNode(true);
 const errorFormButton = errorFormElement.querySelector('.error__button');
 const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
 const loadingFormElement = loadingFormTemplate.cloneNode(true);
+const VALUE_STEP = 25;
+const MAX_VALUE = 100;
+const MIN_VALUE = 25;
 const HASHTAG_FORMAT = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
 const MAX_STRING_LENGTH = 140;
 const MAX_HASHTAGS_AMOUNT = 5;
@@ -32,20 +36,16 @@ const MAX_HASHTAG_LENGTH = 20;
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const onFilterScaleButtonsClick = (evt) => {
-  const input = scaleControlContainer.querySelector('.scale__control--value');
-  const VALUE_STEP = 25;
-  const MAX_VALUE = 100;
-  const MIN_VALUE = 25;
-  const inputIntValue = parseInt(input.value, 10);
-  let scaleValue;
+  const inputIntValue = parseInt(scaleControlInput.value, 10);
   const scaleButton = evt.target;
+  let scaleValue;
   if (scaleButton.matches('.scale__control--bigger') && inputIntValue < MAX_VALUE) {
     scaleValue = inputIntValue + VALUE_STEP;
-    input.value = `${scaleValue}%`;
+    scaleControlInput.value = `${scaleValue}%`;
   }
   if (scaleButton.matches('.scale__control--smaller') && inputIntValue > MIN_VALUE) {
     scaleValue = inputIntValue - VALUE_STEP;
-    input.value = `${scaleValue}%`;
+    scaleControlInput.value = `${scaleValue}%`;
   }
 
   const imgScale = scaleValue / MAX_VALUE;
@@ -123,8 +123,8 @@ pristine.addValidator(
 
 const validateDuplicateHashtag = (value) => {
   const hashtags = getArrayOfHashtags(value);
-  const swapArr = [...new Set(hashtags.map((element) => element.toLowerCase()))];
-  return hashtags.length === swapArr.length;
+  const newHashtags = [...new Set(hashtags.map((element) => element.toLowerCase()))];
+  return hashtags.length === newHashtags.length;
 };
 
 pristine.addValidator(
