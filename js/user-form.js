@@ -3,6 +3,15 @@ import {effects} from './photo-effects.js';
 import {serverRequest} from './api.js';
 import {PopUpsErrorsText} from './error-popup-text.js';
 
+const VALUE_STEP = 25;
+const MAX_VALUE = 100;
+const MIN_VALUE = 25;
+const HASHTAG_FORMAT = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
+const MAX_STRING_LENGTH = 140;
+const MAX_HASHTAGS_AMOUNT = 5;
+const MAX_HASHTAG_LENGTH = 20;
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadUserPhoto = uploadForm.querySelector('.img-upload__input');
 const filterContainer = uploadForm.querySelector('.img-upload__overlay');
@@ -26,14 +35,6 @@ const errorFormElement = errorFormTemplate.cloneNode(true);
 const errorFormButton = errorFormElement.querySelector('.error__button');
 const loadingFormTemplate = document.querySelector('#messages').content.querySelector('.img-upload__message');
 const loadingFormElement = loadingFormTemplate.cloneNode(true);
-const VALUE_STEP = 25;
-const MAX_VALUE = 100;
-const MIN_VALUE = 25;
-const HASHTAG_FORMAT = /^#[A-Za-zА-Яа-яЕё0-9]{1,19}$/;
-const MAX_STRING_LENGTH = 140;
-const MAX_HASHTAGS_AMOUNT = 5;
-const MAX_HASHTAG_LENGTH = 20;
-const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const onFilterScaleButtonsClick = (evt) => {
   const inputIntValue = parseInt(scaleControlInput.value, 10);

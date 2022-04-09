@@ -1,5 +1,7 @@
 import {isEscapeKey} from './util.js';
 
+const LOAD_MORE_STEP = 5;
+
 const modalContainer = document.querySelector('.big-picture');
 const modalImg = modalContainer.querySelector('.big-picture__img img');
 const modalCaption = modalContainer.querySelector('.social__caption');
@@ -11,7 +13,7 @@ const modalComment = modalContainer.querySelector('.social__comment').cloneNode(
 const modalCommentsLoader = modalContainer.querySelector('.comments-loader');
 const modalCloseButton = modalContainer.querySelector('.big-picture__cancel');
 const modalCommentsFragment = document.createDocumentFragment();
-const LOAD_MORE_STEP = 5;
+
 let counter = 5;
 let commentsData = [];
 
