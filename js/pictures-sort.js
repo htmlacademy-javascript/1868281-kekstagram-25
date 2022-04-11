@@ -1,14 +1,15 @@
 import {renderMiniPosts} from './picture.js';
 import {getRandomInRange, debounce} from './util.js';
 
+const MAX_RANDOM_ELEMENTS = 10;
+const RERENDER_DELAY = 500;
+
 const sortPicturesContainer = document.querySelector('.img-filters');
 const filtersForm = sortPicturesContainer.querySelector('.img-filters__form');
 const defaultFilter = filtersForm.querySelector('#filter-default');
 const randomFilter = filtersForm.querySelector('#filter-random');
 const discussedFilter = filtersForm.querySelector('#filter-discussed');
 const previewsContainer = document.querySelector('.pictures');
-const MAX_RANDOM_ELEMENTS = 10;
-const RERENDER_DELAY = 500;
 
 const deletePreviwesElements = (pictures) => {
   pictures.forEach((el) => {
